@@ -1,10 +1,14 @@
 package com.example.bookyourtrain20
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.bookyourtrain20.MainActivity.Companion.viewPagers
+import com.example.bookyourtrain20.databinding.FragmentRegisterBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +25,11 @@ class RegisterFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private val firestore = FirebaseFirestore.getInstance()
+    private val userCollectionRef = firestore.collection("users")
+
+    private lateinit var binding: FragmentRegisterBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -32,9 +41,31 @@ class RegisterFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_register, container, false)
+        binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        with(binding) {
+            btnSignUp.setOnClickListener {
+                val usernameInput = editTxtUsername.text.toString()
+                val nimInput = editTxtNim.text.toString()
+                val passwordInput = editTxtPassword.text.toString()
+
+                val createUser = User(
+                    username = usernameInput,
+                    nim = nimInput,
+                    password = passwordInput
+                )
+
+                addUser(createUser)
+                setEmptyField()
+                viewPagers.currentItem = 1
+
+            }
+        }
+
+        return view
     }
 
     companion object {
@@ -55,5 +86,26 @@ class RegisterFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    private fun addUser(user: User) {
+        userCollectionRef.add(user).addOnSuccessListener {
+                documentReference ->
+            val createdUserId = documentReference.id
+            user.id = createdUserId
+            documentReference.set(user).addOnFailureListener {
+                Log.d("MainActivity", "Error updating budget id : ", it)
+            }
+        }.addOnFailureListener {
+            Log.d("MainActivity", "Error updating budget id : ", it)
+        }
+    }
+
+    private fun setEmptyField() {
+        with(binding) {
+            editTxtUsername.setText("")
+            editTxtNim.setText("")
+            editTxtPassword.setText("")
+        }
     }
 }

@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity() {
 
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 tab.text = when (position) {
-                    0 -> "Register"
-                    1 -> "Login"
+                    0 -> "REGISTER"
+                    1 -> "LOGIN"
                     else -> throw IllegalArgumentException("Position out of array")
                 }
             }.attach()

@@ -1,6 +1,8 @@
 package com.example.bookyourtrain20
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -49,6 +51,34 @@ class LoginFragment : Fragment() {
             btnSignIn.setOnClickListener {
                 val username = editTxtUsername.text.toString()
                 val password = editTxtPassword.text.toString()
+
+                if (username.isEmpty() || password.isEmpty()) {
+                    if (username.isEmpty()) {
+                        editTxtUsername.error = "Please fill out the blank field!"
+                    }
+                    if (password.isEmpty()) {
+                        editTxtPassword.error = "Please fill out the blank field!"
+                    }
+                }
+                else {
+                    userCollectionRef
+                        .whereEqualTo("username", username)
+                        .whereEqualTo("password", password)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            if (documents.isEmpty) {
+                                editTxtUsername.error = "Username or password is wrong!"
+                                editTxtPassword.error = "Username or password is wrong!"
+                            }
+                            else {
+                                val intent = Intent(activity, NonAdminActivity::class.java)
+                                startActivity(intent)
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.d("TAG", "get failed with ", exception)
+                        }
+                }
             }
         }
 

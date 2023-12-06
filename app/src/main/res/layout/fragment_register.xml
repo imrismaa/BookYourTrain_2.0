@@ -64,6 +64,15 @@
             app:layout_constraintTop_toBottomOf="@id/edit_txt_username"/>
 
         <EditText
+            android:id="@+id/edit_txt_date_of_birth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/date_of_birth"
+            android:inputType="date"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/edit_txt_nim"/>
+
+        <EditText
             android:id="@+id/edit_txt_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,7 +80,7 @@
             android:inputType="textPassword"
             android:autofillHints="username"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/edit_txt_nim"/>
+            app:layout_constraintTop_toBottomOf="@id/edit_txt_date_of_birth"/>
 
         <Button
             android:id="@+id/btn_sign_up"

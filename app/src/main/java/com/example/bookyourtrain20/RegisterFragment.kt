@@ -1,14 +1,19 @@
 package com.example.bookyourtrain20
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import com.example.bookyourtrain20.MainActivity.Companion.viewPagers
 import com.example.bookyourtrain20.databinding.FragmentRegisterBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -47,25 +52,106 @@ class RegisterFragment : Fragment() {
         val view = binding.root
 
         with(binding) {
+
+            editTxtDateOfBirth.setOnClickListener {
+                showDatePickerDialog(editTxtDateOfBirth)
+            }
+
             btnSignUp.setOnClickListener {
                 val usernameInput = editTxtUsername.text.toString()
                 val nimInput = editTxtNim.text.toString()
                 val passwordInput = editTxtPassword.text.toString()
+                val dateOfBirthInput = editTxtDateOfBirth.text.toString()
 
-                val createUser = User(
-                    username = usernameInput,
-                    nim = nimInput,
-                    password = passwordInput
-                )
+                if (usernameInput.isEmpty()) {
+                    editTxtUsername.error = "Username is required"
+                } else {
+                    editTxtUsername.error = null
+                }
 
-                addUser(createUser)
-                setEmptyField()
-                viewPagers.currentItem = 1
+                if (nimInput.isEmpty()) {
+                    editTxtNim.error = "NIM is required"
+                } else {
+                    editTxtNim.error = null
+                }
 
+                if (passwordInput.isEmpty()) {
+                    editTxtPassword.error = "Password is required"
+                } else {
+                    editTxtPassword.error = null
+                }
+
+                if (dateOfBirthInput.isEmpty()) {
+                    editTxtDateOfBirth.error = "Date of Birth is required"
+                } else {
+                    editTxtDateOfBirth.error = null
+                }
+
+                if (editTxtUsername.error == null && editTxtNim.error == null &&
+                    editTxtPassword.error == null && editTxtDateOfBirth.error == null
+                ) {
+                    val age = Calendar.getInstance().get(Calendar.YEAR) - dateOfBirthInput
+                        .split("/")[2].toInt()
+                    if (age < 15) {
+                        editTxtDateOfBirth.error = "You must at least 15 years old"
+                        return@setOnClickListener
+                    }else{
+                        val createUser = User(
+                            username = usernameInput,
+                            nim = nimInput,
+                            dateOfBirth = dateOfBirthInput,
+                            password = passwordInput
+                        )
+
+                        addUser(createUser)
+                        setEmptyField()
+                        viewPagers.currentItem = 1
+                    }
+                }
             }
-        }
 
+        }
         return view
+    }
+
+    private fun addUser(user: User) {
+        userCollectionRef.add(user).addOnSuccessListener {
+                documentReference ->
+            val createdUserId = documentReference.id
+            user.id = createdUserId
+            documentReference.set(user).addOnFailureListener {
+                Log.d("MainActivity", "Error updating user id : ", it)
+            }
+        }.addOnFailureListener {
+            Log.d("MainActivity", "Error updating user id : ", it)
+        }
+    }
+
+    private fun setEmptyField() {
+        with(binding) {
+            editTxtUsername.setText("")
+            editTxtNim.setText("")
+            editTxtPassword.setText("")
+        }
+    }
+
+    private fun showDatePickerDialog(editText: EditText) {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR) - 15
+        val month = calendar.get(Calendar.MONTH)
+        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog( requireContext(), {
+                _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance()
+            selectedDate.set(year, month, dayOfMonth)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val date = dateFormat.format(selectedDate.time)
+            editText.setText(date)
+        },
+            year, month, dayOfMonth
+        )
+        datePickerDialog.show()
     }
 
     companion object {
@@ -86,26 +172,5 @@ class RegisterFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
-    }
-
-    private fun addUser(user: User) {
-        userCollectionRef.add(user).addOnSuccessListener {
-                documentReference ->
-            val createdUserId = documentReference.id
-            user.id = createdUserId
-            documentReference.set(user).addOnFailureListener {
-                Log.d("MainActivity", "Error updating budget id : ", it)
-            }
-        }.addOnFailureListener {
-            Log.d("MainActivity", "Error updating budget id : ", it)
-        }
-    }
-
-    private fun setEmptyField() {
-        with(binding) {
-            editTxtUsername.setText("")
-            editTxtNim.setText("")
-            editTxtPassword.setText("")
-        }
     }
 }

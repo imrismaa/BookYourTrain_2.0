@@ -5,5 +5,6 @@ data class User(
     var role: String = "",
     var username: String = "",
     var nim: String = "",
+    var dateOfBirth: String = "",
     var password: String = ""
 )

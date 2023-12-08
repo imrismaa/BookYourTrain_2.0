@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_navigation_admin"
+    app:startDestination="@id/listTravelAdminFragment2">
+
+    <fragment
+        android:id="@+id/listTravelAdminFragment2"
+        android:name="com.example.bookyourtrain20.ListTravelAdminFragment"
+        android:label="fragment_list_travel_admin"
+        tools:layout="@layout/fragment_list_travel_admin" />
+    <fragment
+        android:id="@+id/profileAdminFragment2"
+        android:name="com.example.bookyourtrain20.ProfileAdminFragment"
+        android:label="fragment_profile_admin"
+        tools:layout="@layout/fragment_profile_admin" />
+</navigation>

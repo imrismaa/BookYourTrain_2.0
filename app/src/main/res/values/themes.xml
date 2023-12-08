@@ -34,10 +34,13 @@
         <item name="tabSelectedTextColor">@color/dark_blue</item>
     </style>
 
-    <!-- for text -->
     <style name="AppTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/dark_blue</item>
         <item name="fontFamily">@font/intersemibold</item>
+    </style>
+
+    <style name="circularCorner">
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

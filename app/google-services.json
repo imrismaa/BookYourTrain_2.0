@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "518165851649",
+    "project_id": "bookyourtrain-2-0",
+    "storage_bucket": "bookyourtrain-2-0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:518165851649:android:1832082b29b4538f3a9a00",
+        "android_client_info": {
+          "package_name": "com.example.bookyourtrain20"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgSX_WoxyJwZjFMbjLYVCchPgJRvloMeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

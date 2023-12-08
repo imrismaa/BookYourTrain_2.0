@@ -95,8 +95,18 @@ class LoginFragment : Fragment() {
                                 editTxtPassword.error = "Username or password is wrong!"
                             }
                             else {
-                                val intent = Intent(activity, NonAdminActivity::class.java)
-                                startActivity(intent)
+                                val userDocument = documents.documents[0]
+                                val userRole = userDocument.getString("role")
+
+                                if ("admin" == userRole) {
+                                    // User is an admin
+                                    val intent = Intent(activity, AdminActivity::class.java)
+                                    startActivity(intent)
+                                } else {
+                                    // User is a non-admin
+                                    val intent = Intent(activity, NonAdminActivity::class.java)
+                                    startActivity(intent)
+                                }
                             }
                         }
                         .addOnFailureListener { exception ->

@@ -12,6 +12,7 @@ class PrefManager private constructor(contect: Context) {
         private const val KEY_IS_LOGGED_IN = "isLoggedIn"
         private const val KEY_USERNAME = "username"
         private const val KEY_PASSWORD = "password"
+        private const val KEY_ROLE = "role"
 
         @Volatile
         private var instance: PrefManager? = null
@@ -51,12 +52,22 @@ class PrefManager private constructor(contect: Context) {
         editor.apply()
     }
 
+    fun saveRole(role: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(KEY_ROLE, role)
+        editor.apply()
+    }
+
     fun getUsername(): String {
         return sharedPreferences.getString(KEY_USERNAME, "") ?: ""
     }
 
     fun getPassword(): String {
         return sharedPreferences.getString(KEY_PASSWORD, "") ?: ""
+    }
+
+    fun getRole(): String {
+        return sharedPreferences.getString(KEY_ROLE, "") ?: ""
     }
 
     fun clear() {

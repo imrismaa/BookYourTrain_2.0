@@ -10,14 +10,31 @@ import com.example.bookyourtrain20.databinding.ActivitySplashScreenBinding
 class SplashScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashScreenBinding
+    private lateinit var prefManager: PrefManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        prefManager = PrefManager.getInstance(this)
+        checkLoginStatus()
+
         with(binding) {
             btnToMain.setOnClickListener {
                 val intent = Intent(this@SplashScreenActivity, MainActivity::class.java)
+                startActivity(intent)
+            }
+        }
+    }
+
+    fun checkLoginStatus() {
+        val isLoggedIn = prefManager.isLoggedIn()
+        if(isLoggedIn) {
+            if(prefManager.getRole() == "admin") {
+                val intent = Intent(this@SplashScreenActivity, AdminActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this@SplashScreenActivity, NonAdminActivity::class.java)
                 startActivity(intent)
             }
         }

@@ -25,6 +25,7 @@ class ProfileAdminFragment : Fragment(), LogoutConfirmationFragment.LogoutConfir
     private var param2: String? = null
 
     private lateinit var binding: FragmentProfileAdminBinding
+    private lateinit var prefManager: PrefManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,7 @@ class ProfileAdminFragment : Fragment(), LogoutConfirmationFragment.LogoutConfir
         // Inflate the layout for this fragment
         binding = FragmentProfileAdminBinding.inflate(inflater, container, false)
         val view = binding.root
+        prefManager = PrefManager.getInstance(requireContext())
 
         with(binding) {
             logout.setOnClickListener{
@@ -78,6 +80,8 @@ class ProfileAdminFragment : Fragment(), LogoutConfirmationFragment.LogoutConfir
     }
 
     override fun onDialogPositiveClick(dialog: DialogFragment) {
+        prefManager.setLoggedIn(false)
+        prefManager.clear()
         val intent = Intent(activity, MainActivity::class.java)
         startActivity(intent)
         activity?.finish()

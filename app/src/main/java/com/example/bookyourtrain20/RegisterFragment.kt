@@ -143,7 +143,6 @@ class RegisterFragment : Fragment() {
                             dateOfBirth = dateOfBirthInput,
                             password = passwordInput
                         )
-
                         addUser(createUser)
                         setEmptyField()
                         viewPagers.currentItem = 1

@@ -32,6 +32,7 @@ class LoginFragment : Fragment() {
     private var passwordVisible = false
 
     private lateinit var binding: FragmentLoginBinding
+    private lateinit var prefManager: PrefManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,7 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         val view = binding.root
+        prefManager = PrefManager.getInstance(requireContext())
 
         with(binding) {
 
@@ -73,21 +75,21 @@ class LoginFragment : Fragment() {
             }
 
             btnSignIn.setOnClickListener {
-                val username = editTxtUsername.text.toString()
-                val password = editTxtPassword.text.toString()
+                val usernameInput = editTxtUsername.text.toString()
+                val passwordInput = editTxtPassword.text.toString()
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    if (username.isEmpty()) {
+                if (usernameInput.isEmpty() || passwordInput.isEmpty()) {
+                    if (usernameInput.isEmpty()) {
                         editTxtUsername.error = "Please fill out the blank field!"
                     }
-                    if (password.isEmpty()) {
+                    if (passwordInput.isEmpty()) {
                         editTxtPassword.error = "Please fill out the blank field!"
                     }
                 }
                 else {
                     userCollectionRef
-                        .whereEqualTo("username", username)
-                        .whereEqualTo("password", password)
+                        .whereEqualTo("username", usernameInput)
+                        .whereEqualTo("password", passwordInput)
                         .get()
                         .addOnSuccessListener { documents ->
                             if (documents.isEmpty) {
@@ -100,10 +102,18 @@ class LoginFragment : Fragment() {
 
                                 if ("admin" == userRole) {
                                     // User is an admin
+                                    prefManager.saveUsername(usernameInput)
+                                    prefManager.savePassword(passwordInput)
+                                    prefManager.saveRole(userRole)
+                                    prefManager.setLoggedIn(true)
                                     val intent = Intent(activity, AdminActivity::class.java)
                                     startActivity(intent)
                                 } else {
                                     // User is a non-admin
+                                    prefManager.saveUsername(usernameInput)
+                                    prefManager.savePassword(passwordInput)
+                                    prefManager.saveRole("user")
+                                    prefManager.setLoggedIn(true)
                                     val intent = Intent(activity, NonAdminActivity::class.java)
                                     startActivity(intent)
                                 }

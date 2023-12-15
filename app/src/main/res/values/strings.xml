@@ -16,4 +16,12 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="already_have_account">Already have account?</string>
     <string name="show">show</string>
+    <string name="name">Name</string>
+    <string name="sign_in2">Sign In</string>
+    <string name="nim">NIM</string>
+    <string name="train_name">Train Name</string>
+    <string name="add_travel">+ Add Travel</string>
+    <string name="bookyourtrain">BookYourTrain</string>
+    <string name="add_travel_title">Add Travel</string>
+    <string name="enter_departure_station">Enter departure station</string>
 </resources>

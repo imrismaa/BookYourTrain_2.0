@@ -60,10 +60,12 @@ class RegisterFragment : Fragment() {
                 viewPagers.currentItem = 1
             }
 
+            // show date picker by clicking date picker icon
             btnDatePicker.setOnClickListener {
                 showDatePickerDialog(editTxtDateOfBirth)
             }
 
+            // show password by clicking show password icon
             btnShowPw.setOnClickListener {
                 val currentInputType = editTxtPassword.inputType
 
@@ -100,12 +102,21 @@ class RegisterFragment : Fragment() {
 
             btnSignUp.setOnClickListener {
                 val usernameInput = editTxtUsername.text.toString()
+                val nameInput = editTxtName.text.toString()
                 val nimInput = editTxtNim.text.toString()
                 val passwordInput = editTxtPassword.text.toString()
+                val confirmPasswordInput = editTxtConfirmPassword.text.toString()
                 val dateOfBirthInput = editTxtDateOfBirth.text.toString()
 
+                // check if the field is empty
                 if (usernameInput.isEmpty()) {
                     editTxtUsername.error = "Username is required"
+                } else {
+                    editTxtUsername.error = null
+                }
+
+                if (nameInput.isEmpty()) {
+                    editTxtName.error = "Name is required"
                 } else {
                     editTxtUsername.error = null
                 }
@@ -122,23 +133,37 @@ class RegisterFragment : Fragment() {
                     editTxtPassword.error = null
                 }
 
+                if (confirmPasswordInput.isEmpty()) {
+                    editTxtConfirmPassword.error = "Confirm Password is required"
+                } else {
+                    if (confirmPasswordInput != passwordInput) {
+                        editTxtConfirmPassword.error = "Password doesn't match"
+                    } else {
+                        editTxtConfirmPassword.error = null
+                    }
+                }
+
                 if (dateOfBirthInput.isEmpty()) {
                     editTxtDateOfBirth.error = "Date of Birth is required"
                 } else {
                     editTxtDateOfBirth.error = null
                 }
 
+                // if the field is not empty
                 if (editTxtUsername.error == null && editTxtNim.error == null &&
                     editTxtPassword.error == null && editTxtDateOfBirth.error == null
                 ) {
                     val age = Calendar.getInstance().get(Calendar.YEAR) - dateOfBirthInput
                         .split("/")[2].toInt()
+
+                    // check if the age is at least 15 years old
                     if (age < 15) {
                         editTxtDateOfBirth.error = "You must at least 15 years old"
                         return@setOnClickListener
                     }else{
                         val createUser = User(
                             username = usernameInput,
+                            name = nameInput,
                             nim = nimInput,
                             dateOfBirth = dateOfBirthInput,
                             password = passwordInput
@@ -170,8 +195,10 @@ class RegisterFragment : Fragment() {
     private fun setEmptyField() {
         with(binding) {
             editTxtUsername.setText("")
+            editTxtName.setText("")
             editTxtNim.setText("")
             editTxtPassword.setText("")
+            editTxtDateOfBirth.setText("")
         }
     }
 

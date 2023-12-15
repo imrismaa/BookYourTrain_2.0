@@ -19,5 +19,14 @@
         android:id="@+id/listTravelFragment2"
         android:name="com.example.bookyourtrain20.ListTravelFragment"
         android:label="fragment_list_travel"
-        tools:layout="@layout/fragment_list_travel" />
+        tools:layout="@layout/fragment_list_travel" >
+        <action
+            android:id="@+id/action_listTravelFragment2_to_buyTicketFragment"
+            app:destination="@id/buyTicketFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/buyTicketFragment"
+        android:name="com.example.bookyourtrain20.BuyTicketFragment"
+        android:label="fragment_buy_ticket"
+        tools:layout="@layout/fragment_buy_ticket" />
 </navigation>

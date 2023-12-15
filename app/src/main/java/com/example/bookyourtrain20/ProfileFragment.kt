@@ -1,13 +1,16 @@
 package com.example.bookyourtrain20
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.bookyourtrain20.databinding.FragmentProfileBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,7 +45,13 @@ class ProfileFragment : Fragment(), LogoutConfirmationFragment.LogoutConfirmatio
         // Inflate the layout for this fragment
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
+
         prefManager = PrefManager.getInstance(requireContext())
+        val username = prefManager.getUsername()
+
+        if (username.isNotEmpty()) {
+            getUserDataFromFirestore(username)
+        }
 
         with(binding) {
             logout.setOnClickListener {
@@ -57,6 +66,29 @@ class ProfileFragment : Fragment(), LogoutConfirmationFragment.LogoutConfirmatio
         val logoutConfirmationDialog = LogoutConfirmationFragment()
         logoutConfirmationDialog.setLogoutConfirmationListener(this)
         logoutConfirmationDialog.show(parentFragmentManager, "LogoutConfirmationDialog")
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun getUserDataFromFirestore(username: String) {
+        val userCollectionRef = FirebaseFirestore.getInstance().collection("users")
+
+        userCollectionRef
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val userDocument = documents.documents[0]
+                    val name = userDocument.getString("name")
+                    val nim = userDocument.getString("nim")
+                    with(binding){
+                        profileName.text = "$name \n $nim"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.d("TAG", "get failed with ", exception)
+            }
     }
 
     override fun onDialogPositiveClick(dialog: DialogFragment) {

@@ -1,10 +1,16 @@
 package com.example.bookyourtrain20
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import com.example.bookyourtrain20.databinding.FragmentListTravelBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +27,14 @@ class ListTravelFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var binding: FragmentListTravelBinding
+
+    private val firestore = FirebaseFirestore.getInstance()
+    private val travelsCollectionRef = firestore.collection("travel")
+    private val travelListLiveData: MutableLiveData<List<Travel>> by lazy {
+        MutableLiveData<List<Travel>>()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -32,9 +46,46 @@ class ListTravelFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list_travel, container, false)
+        binding = FragmentListTravelBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        observeNotes()
+        getAllTravels()
+        return view
+    }
+
+    private fun getAllTravels() {
+        observeTravelsChange()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getAllTravels()
+    }
+
+    private fun observeTravelsChange() {
+        travelsCollectionRef.addSnapshotListener { snapshots, error ->
+            if (error != null) {
+                Log.d("MainActivity",
+                    "Error Listening for budget changes:", error)
+            }
+            val budgets = snapshots?.toObjects(Travel::class.java)
+            if (budgets != null) {
+                travelListLiveData.postValue(budgets)
+            }
+        }
+    }
+
+    //update adapter tiap livedata berubah
+    private fun observeNotes() {
+        travelListLiveData.observe(this) { travels->
+            val adapterNote = TravelAdapter(travels) { travel ->
+                val action = ListTravelFragmentDirections.actionListTravelFragment2ToBuyTicketFragment()
+                findNavController().navigate(action)
+            }
+        }
     }
 
     companion object {

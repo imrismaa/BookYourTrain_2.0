@@ -9,10 +9,19 @@
         android:id="@+id/listTravelAdminFragment2"
         android:name="com.example.bookyourtrain20.ListTravelAdminFragment"
         android:label="fragment_list_travel_admin"
-        tools:layout="@layout/fragment_list_travel_admin" />
+        tools:layout="@layout/fragment_list_travel_admin" >
+        <action
+            android:id="@+id/action_listTravelAdminFragment2_to_addTravelFragment"
+            app:destination="@id/addTravelFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileAdminFragment2"
         android:name="com.example.bookyourtrain20.ProfileAdminFragment"
         android:label="fragment_profile_admin"
         tools:layout="@layout/fragment_profile_admin" />
+    <fragment
+        android:id="@+id/addTravelFragment"
+        android:name="com.example.bookyourtrain20.AddTravelFragment"
+        android:label="fragment_add_travel"
+        tools:layout="@layout/fragment_add_travel" />
 </navigation>

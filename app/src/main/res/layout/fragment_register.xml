@@ -24,15 +24,26 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_txt_name"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/name"
+            android:inputType="text"
+            android:autofillHints="username"
+            android:layout_marginTop="12dp"
+            style="@style/EditTextBackground"
+            app:layout_constraintTop_toBottomOf="@id/edit_txt_username"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edit_txt_nim"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:hint="NIM"
+            android:hint="@string/nim"
             android:inputType="text"
             android:autofillHints="22/505613/SV/21835"
             android:layout_marginTop="12dp"
             style="@style/EditTextBackground"
-            app:layout_constraintTop_toBottomOf="@id/edit_txt_username"/>
+            app:layout_constraintTop_toBottomOf="@id/edit_txt_name"/>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edit_txt_date_of_birth"
@@ -128,7 +139,7 @@
                 android:id="@+id/txt_sign_up"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" Sign In"
+                android:text="@string/sign_in2"
                 android:fontFamily="@font/intersemibold"
                 android:textColor="@color/dark_blue"/>
 

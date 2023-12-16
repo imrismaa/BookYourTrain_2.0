@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bookyourtrain20.databinding.FragmentListTravelBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -51,7 +51,7 @@ class ListTravelFragment : Fragment() {
         binding = FragmentListTravelBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        observeNotes()
+        observeTravel()
         getAllTravels()
         return view
     }
@@ -69,21 +69,29 @@ class ListTravelFragment : Fragment() {
         travelsCollectionRef.addSnapshotListener { snapshots, error ->
             if (error != null) {
                 Log.d("MainActivity",
-                    "Error Listening for budget changes:", error)
+                    "Error Listening for travel changes:", error)
             }
-            val budgets = snapshots?.toObjects(Travel::class.java)
-            if (budgets != null) {
-                travelListLiveData.postValue(budgets)
+            val travels = snapshots?.toObjects(Travel::class.java)
+            if (travels != null) {
+                travelListLiveData.postValue(travels)
             }
         }
     }
 
     //update adapter tiap livedata berubah
-    private fun observeNotes() {
-        travelListLiveData.observe(this) { travels->
-            val adapterNote = TravelAdapter(travels) { travel ->
+    private fun observeTravel() {
+        travelListLiveData.observe(viewLifecycleOwner) { travels->
+            val adapterTravel = TravelAdapter(travels) { _ ->
                 val action = ListTravelFragmentDirections.actionListTravelFragment2ToBuyTicketFragment()
+
                 findNavController().navigate(action)
+            }
+
+            with(binding) {
+                rvListTravel.apply{
+                    adapter = adapterTravel
+                    layoutManager = LinearLayoutManager(requireContext())
+                }
             }
         }
     }

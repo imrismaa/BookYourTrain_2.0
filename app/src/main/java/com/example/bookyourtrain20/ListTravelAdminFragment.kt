@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentListTravelAdminBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,6 +26,11 @@ class ListTravelAdminFragment : Fragment() {
     private var param2: String? = null
 
     private lateinit var binding: FragmentListTravelAdminBinding
+    private val firestore = FirebaseFirestore.getInstance()
+    private val travelCollectionRef = firestore.collection("travel")
+    private val travelListLiveData: MutableLiveData<List<Travel>> by lazy {
+        MutableLiveData<List<Travel>>()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

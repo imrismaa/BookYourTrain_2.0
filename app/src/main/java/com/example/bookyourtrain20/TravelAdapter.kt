@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bookyourtrain20.databinding.ItemTravelBinding
+import java.text.NumberFormat
+import java.util.Locale
 
 typealias OnClickTravel = (Travel) -> Unit
 class TravelAdapter(
@@ -14,11 +16,14 @@ class TravelAdapter(
 
     inner class ItemTravelViewHolder(private val binding: ItemTravelBinding) :
         RecyclerView.ViewHolder(binding.root) {
-            @SuppressLint("SetTextI18n")
+            @SuppressLint("SetTextI18n", "ResourceAsColor")
             fun bind(travel: Travel) {
                 with(binding) {
+                    val formattedPrice = formatPrice(travel.price)
+                    txtTrain.text = travel.train
                     txtDeparture.text = "Destination\n${travel.destination}"
                     txtDestination.text = "Departure\n${travel.departure}"
+                    txtPrice.text = formattedPrice
                     itemView.setOnClickListener {
                         onClickTravel(travel)
                     }
@@ -41,5 +46,12 @@ class TravelAdapter(
 
     override fun onBindViewHolder(holder: ItemTravelViewHolder, position: Int) {
         holder.bind(listTravel[position])
+    }
+
+    private fun formatPrice(price: Int): String {
+        // Use NumberFormat to format the price in IDR
+        val localeID = Locale("id", "ID")
+        val numberFormat = NumberFormat.getCurrencyInstance(localeID)
+        return numberFormat.format(price.toLong())
     }
 }

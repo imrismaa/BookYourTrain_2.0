@@ -24,4 +24,9 @@
     <string name="bookyourtrain">BookYourTrain</string>
     <string name="add_travel_title">Add Travel</string>
     <string name="enter_departure_station">Enter departure station</string>
+    <array name="train">
+        <item>Argo Dwipangga</item>
+        <item>Argo Wilis</item>
+        <item>Commuter Line</item>
+    </array>
 </resources>

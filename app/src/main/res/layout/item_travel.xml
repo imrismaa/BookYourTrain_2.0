@@ -10,7 +10,6 @@
         android:id="@+id/card_travel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         app:cardCornerRadius="8dp"
         app:cardBackgroundColor="@color/light_grey"
         app:layout_constraintTop_toTopOf="parent">
@@ -58,10 +57,10 @@
                 app:layout_constraintTop_toBottomOf="@id/img_train"/>
 
             <TextView
-                android:id="@+id/txt_departure"
+                android:id="@+id/txt_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Departure\nStation"
+                android:text="Destination\nStation"
                 android:textStyle="bold"
                 android:textColor="@color/grey"
                 android:fontFamily="@font/interregular"
@@ -70,10 +69,10 @@
                 app:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
-                android:id="@+id/txt_destination"
+                android:id="@+id/txt_departure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Destination\nStation"
+                android:text="Departure\nStation"
                 android:textColor="@color/grey"
                 android:fontFamily="@font/interregular"
                 android:textStyle="bold"

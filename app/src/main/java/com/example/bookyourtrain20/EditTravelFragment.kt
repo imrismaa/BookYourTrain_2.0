@@ -8,9 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.navigation.fragment.findNavController
-import com.example.bookyourtrain20.databinding.FragmentAddTravelBinding
+import androidx.appcompat.widget.AppCompatSpinner
+import com.example.bookyourtrain20.databinding.FragmentEditTravelBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
 // TODO: Rename parameter arguments, choose names that match
@@ -20,17 +19,15 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [AddTravelFragment.newInstance] factory method to
+ * Use the [EditTravelFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AddTravelFragment : Fragment() {
+class EditTravelFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private lateinit var binding: FragmentAddTravelBinding
-    private val firestore = FirebaseFirestore.getInstance()
-    private val travelCollectionRef = firestore.collection("travel")
+    private lateinit var binding: FragmentEditTravelBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +42,12 @@ class AddTravelFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentAddTravelBinding.inflate(inflater, container, false)
+        binding = FragmentEditTravelBinding.inflate(inflater, container, false)
         val view = binding.root
+
+        if(ListTravelAdminFragment.travelId.isNotEmpty()) {
+            getTravelDataFromFirestore(ListTravelAdminFragment.travelId)
+        }
 
         with(binding) {
             val train = resources.getStringArray(R.array.train)
@@ -64,38 +65,48 @@ class AddTravelFragment : Fragment() {
                         TODO("Not yet implemented")
                     }
                 }
-
-            val departureInput = editTxtDeparture.text.toString()
-            val destinationInput = editTxtDestination.text.toString()
-            val priceInput = editTxtPrice.text.toString()
-
-            btnAddTravel.setOnClickListener {
-                val travel = Travel(
-                    departure = editTxtDeparture.text.toString(),
-                    destination = editTxtDestination.text.toString(),
-                    price = editTxtPrice.text.toString().toInt(),
-                    train = selectedTrain
-                )
-                addTravel(travel)
-                Toast.makeText(requireContext(), "Travel added successfully", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
-            }
         }
 
         return view
     }
 
-    private fun addTravel(travel: Travel) {
-        travelCollectionRef.add(travel).addOnSuccessListener {
-                documentReference ->
-            val createdTravelId = documentReference.id
-            travel.id = createdTravelId
-            documentReference.set(travel).addOnFailureListener {
-                Log.d("MainActivity", "Error updating travel id : ", it)
+    private fun getTravelDataFromFirestore(travelId: String) {
+        val travelCollectionRef = FirebaseFirestore.getInstance().collection("travel")
+
+        travelCollectionRef
+            .whereEqualTo("id", travelId)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val travelDocument = documents.documents[0]
+                    val departure = travelDocument.getString("departure")
+                    val destination = travelDocument.getString("destination")
+                    val price = travelDocument.getLong("price")
+                    val train = travelDocument.getString("train")
+
+                    Log.d("TAG", "Departure: $departure, Destination: $destination, Price: $price, Train: $train")
+
+                    with(binding){
+                        editTxtDeparture.setText(departure)
+                        editTxtDestination.setText(destination)
+                        editTxtPrice.setText(price.toString())
+                        spinnerTrain.setSelection(getIndex(spinnerTrain, train.toString()))
+                    }
+                }
             }
-        }.addOnFailureListener {
-            Log.d("MainActivity", "Error updating travel id : ", it)
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.d("TAG", "get failed with ", exception)
+            }
+    }
+
+    private fun getIndex(spinnerTrain: AppCompatSpinner, toString: String): Int {
+        for (i in 0 until spinnerTrain.count) {
+            if (spinnerTrain.getItemAtPosition(i).toString() == toString) {
+                return i
+            }
         }
+        return 0
     }
 
     companion object {
@@ -105,12 +116,12 @@ class AddTravelFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment AddTravelFragment.
+         * @return A new instance of fragment EditTravelFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            AddTravelFragment().apply {
+            EditTravelFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

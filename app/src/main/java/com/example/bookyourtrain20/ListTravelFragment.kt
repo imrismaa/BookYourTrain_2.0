@@ -81,9 +81,9 @@ class ListTravelFragment : Fragment() {
     //update adapter tiap livedata berubah
     private fun observeTravel() {
         travelListLiveData.observe(viewLifecycleOwner) { travels->
-            val adapterTravel = TravelAdapter(travels) { _ ->
+            val adapterTravel = TravelAdapter(travels) { travel ->
                 val action = ListTravelFragmentDirections.actionListTravelFragment2ToBuyTicketFragment()
-
+                travelId = travel.id
                 findNavController().navigate(action)
             }
 
@@ -97,6 +97,7 @@ class ListTravelFragment : Fragment() {
     }
 
     companion object {
+        var travelId: String = ""
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

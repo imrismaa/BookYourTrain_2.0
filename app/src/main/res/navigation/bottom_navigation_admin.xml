@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_listTravelAdminFragment2_to_addTravelFragment"
             app:destination="@id/addTravelFragment" />
+        <action
+            android:id="@+id/action_listTravelAdminFragment2_to_editTravelFragment"
+            app:destination="@id/editTravelFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileAdminFragment2"
@@ -24,4 +27,9 @@
         android:name="com.example.bookyourtrain20.AddTravelFragment"
         android:label="fragment_add_travel"
         tools:layout="@layout/fragment_add_travel" />
+    <fragment
+        android:id="@+id/editTravelFragment"
+        android:name="com.example.bookyourtrain20.EditTravelFragment"
+        android:label="fragment_edit_travel"
+        tools:layout="@layout/fragment_edit_travel" />
 </navigation>

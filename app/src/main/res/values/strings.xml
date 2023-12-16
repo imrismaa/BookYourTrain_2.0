@@ -24,9 +24,24 @@
     <string name="bookyourtrain">BookYourTrain</string>
     <string name="add_travel_title">Add Travel</string>
     <string name="enter_departure_station">Enter departure station</string>
+    <string name="passenger_name">Passenger Name</string>
     <array name="train">
         <item>Argo Dwipangga</item>
         <item>Argo Wilis</item>
         <item>Commuter Line</item>
     </array>
+    <array name="classes">
+        <item>Economy</item>
+        <item>Business</item>
+        <item>Executive</item>
+        <item>Luxury</item>
+    </array>
+    <string name="paket_satu">Makan</string>
+    <string name="paket_dua">Duduk di pinggir jendela</string>
+    <string name="paket_tiga">Duduk di depan</string>
+    <string name="paket_empat">Selimut dan Bantal</string>
+    <string name="paket_lima">Proteksi tambahan</string>
+    <string name="paket_enam">Bagasi tambahan</string>
+    <string name="paket_tujuh">Antar-jemput ke stasiun</string>
+    <string name="update">Update</string>
 </resources>

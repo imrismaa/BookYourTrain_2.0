@@ -1,12 +1,14 @@
 package com.example.bookyourtrain20
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bookyourtrain20.databinding.FragmentListTravelAdminBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -27,7 +29,7 @@ class ListTravelAdminFragment : Fragment() {
 
     private lateinit var binding: FragmentListTravelAdminBinding
     private val firestore = FirebaseFirestore.getInstance()
-    private val travelCollectionRef = firestore.collection("travel")
+    private val travelsCollectionRef = firestore.collection("travel")
     private val travelListLiveData: MutableLiveData<List<Travel>> by lazy {
         MutableLiveData<List<Travel>>()
     }
@@ -55,10 +57,54 @@ class ListTravelAdminFragment : Fragment() {
             }
         }
 
+        observeTravel()
+        getAllTravels()
         return view
     }
 
+    private fun getAllTravels() {
+        observeTravelsChange()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getAllTravels()
+    }
+
+    private fun observeTravelsChange() {
+        travelsCollectionRef.addSnapshotListener { snapshots, error ->
+            if (error != null) {
+                Log.d("MainActivity",
+                    "Error Listening for travel changes:", error)
+            }
+            val travels = snapshots?.toObjects(Travel::class.java)
+            if (travels != null) {
+                travelListLiveData.postValue(travels)
+            }
+        }
+    }
+
+    //update adapter tiap livedata berubah
+    private fun observeTravel() {
+        travelListLiveData.observe(viewLifecycleOwner) { travels->
+            val adapterTravel = TravelAdapter(travels) { travel ->
+                val action = ListTravelAdminFragmentDirections.actionListTravelAdminFragment2ToEditTravelFragment()
+                travelId = travel.id
+                findNavController().navigate(action)
+            }
+
+            with(binding) {
+                rvListTravel.apply{
+                    adapter = adapterTravel
+                    layoutManager = LinearLayoutManager(requireContext())
+                }
+            }
+        }
+    }
+
+
     companion object {
+        var travelId: String = ""
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

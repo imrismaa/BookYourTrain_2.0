@@ -1,5 +1,9 @@
 package com.example.bookyourtrain20
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,6 +16,9 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentAddTravelBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +30,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [AddTravelFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@Suppress("DEPRECATION")
 class AddTravelFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -32,11 +40,15 @@ class AddTravelFragment : Fragment() {
     private val firestore = FirebaseFirestore.getInstance()
     private val travelCollectionRef = firestore.collection("travel")
 
+    private lateinit var travelDao: TravelDAO
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+
+            travelDao = TravelRoomDB.getDatabase(requireContext())?.travelDao()!!
         }
     }
 
@@ -65,10 +77,6 @@ class AddTravelFragment : Fragment() {
                     }
                 }
 
-            val departureInput = editTxtDeparture.text.toString()
-            val destinationInput = editTxtDestination.text.toString()
-            val priceInput = editTxtPrice.text.toString()
-
             btnAddTravel.setOnClickListener {
                 val travel = Travel(
                     departure = editTxtDeparture.text.toString(),
@@ -76,13 +84,47 @@ class AddTravelFragment : Fragment() {
                     price = editTxtPrice.text.toString().toInt(),
                     train = selectedTrain
                 )
-                addTravel(travel)
-                Toast.makeText(requireContext(), "Travel added successfully", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
+
+                val travelDB = TravelDB(
+                    departure = editTxtDeparture.text.toString(),
+                    destination = editTxtDestination.text.toString(),
+                    price = editTxtPrice.text.toString().toInt(),
+                    train = selectedTrain
+                )
+
+                if (isInternetAvailable(requireContext())) {
+                    addTravel(travel)
+                    Toast.makeText(requireContext(), "Travel added successfully", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                } else {
+                    addTravelToLocalDatabase(travelDB)
+                    Toast.makeText(requireContext(), "No internet connection. Travel added locally.", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                }
             }
         }
 
         return view
+    }
+
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+            networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)?: false
+        } else{
+            @Suppress("DEPRECATION")
+            val networkInfo: android.net.NetworkInfo? = connectivityManager.activeNetworkInfo
+            networkInfo?.isConnected?: false
+        }
+    }
+
+    private fun addTravelToLocalDatabase(travel: TravelDB) {
+        CoroutineScope(Dispatchers.IO).launch {
+            travelDao.insert(travel)
+        }
     }
 
     private fun addTravel(travel: Travel) {

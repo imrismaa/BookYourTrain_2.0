@@ -11,6 +11,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bookyourtrain20.databinding.FragmentListTravelAdminBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,6 +37,8 @@ class ListTravelAdminFragment : Fragment() {
         MutableLiveData<List<Travel>>()
     }
 
+    private lateinit var travelDao: TravelDAO
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -50,10 +55,16 @@ class ListTravelAdminFragment : Fragment() {
         binding = FragmentListTravelAdminBinding.inflate(inflater, container, false)
         val view = binding.root
 
+        travelDao = TravelRoomDB.getDatabase(requireContext())?.travelDao()!!
+
         with(binding) {
             btnAddTravel.setOnClickListener {
                 val action = ListTravelAdminFragmentDirections.actionListTravelAdminFragment2ToAddTravelFragment()
                 findNavController().navigate(action)
+            }
+
+            btnSync.setOnClickListener {
+                syncLocalDataWithFirebase()
             }
         }
 
@@ -99,6 +110,42 @@ class ListTravelAdminFragment : Fragment() {
                     layoutManager = LinearLayoutManager(requireContext())
                 }
             }
+        }
+    }
+
+    private fun addTravel(travel: Travel) {
+        travelsCollectionRef.add(travel).addOnSuccessListener {
+                documentReference ->
+            val createdTravelId = documentReference.id
+            travel.id = createdTravelId
+            documentReference.set(travel).addOnFailureListener {
+                Log.d("MainActivity", "Error updating travel id : ", it)
+            }
+        }.addOnFailureListener {
+            Log.d("MainActivity", "Error updating travel id : ", it)
+        }
+    }
+
+    private fun syncLocalDataWithFirebase() {
+        travelDao.allTravels.observe(viewLifecycleOwner) { localTravels ->
+            localTravels?.let {
+                for (localTravel in it) {
+                    val travel = Travel(
+                        departure = localTravel.departure,
+                        destination = localTravel.destination,
+                        price = localTravel.price,
+                        train = localTravel.train
+                    )
+                    addTravel(travel)
+                    deleteTravelFromRoom(localTravel)
+                }
+            }
+        }
+    }
+
+    private fun deleteTravelFromRoom(localTravel: TravelDB) {
+        CoroutineScope(Dispatchers.IO).launch {
+            travelDao.delete(localTravel)
         }
     }
 

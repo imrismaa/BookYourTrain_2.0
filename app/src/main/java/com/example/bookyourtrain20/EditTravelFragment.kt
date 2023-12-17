@@ -8,7 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatSpinner
+import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentEditTravelBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -22,12 +25,15 @@ private const val ARG_PARAM2 = "param2"
  * Use the [EditTravelFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class EditTravelFragment : Fragment() {
+class EditTravelFragment : Fragment(), DeleteConfirmationFragment.DeleteConfirmationListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
     private lateinit var binding: FragmentEditTravelBinding
+    private var updateId = ""
+    private val firestore = FirebaseFirestore.getInstance()
+    private val travelCollectionRef = firestore.collection("travel")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,25 +78,76 @@ class EditTravelFragment : Fragment() {
 
     private fun getTravelDataFromFirestore(travelId: String) {
         val travelCollectionRef = FirebaseFirestore.getInstance().collection("travel")
+        val travelDocumentRef = travelCollectionRef.document(travelId)
 
-        travelCollectionRef
-            .whereEqualTo("id", travelId)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val travelDocument = documents.documents[0]
-                    val departure = travelDocument.getString("departure")
-                    val destination = travelDocument.getString("destination")
-                    val price = travelDocument.getLong("price")
-                    val train = travelDocument.getString("train")
+        travelDocumentRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val travelDocument = documentSnapshot.data
+                    val departure = travelDocument?.get("departure") as? String
+                    val destination = travelDocument?.get("destination") as? String
+                    val price = travelDocument?.get("price") as? Long
+                    val train = travelDocument?.get("train") as? String
 
                     Log.d("TAG", "Departure: $departure, Destination: $destination, Price: $price, Train: $train")
 
-                    with(binding){
+                    with(binding) {
                         editTxtDeparture.setText(departure)
                         editTxtDestination.setText(destination)
                         editTxtPrice.setText(price.toString())
                         spinnerTrain.setSelection(getIndex(spinnerTrain, train.toString()))
+
+                        // Assign the updateId here
+                        updateId = travelId
+
+                        btnUpdate.setOnClickListener {
+                            val updatedDeparture = editTxtDeparture.text.toString()
+                            val updatedDestination = editTxtDestination.text.toString()
+                            val updatedPrice = editTxtPrice.text.toString().toInt()
+
+                            val trains = resources.getStringArray(R.array.train)
+                            val adapterTrains = ArrayAdapter(
+                                requireContext(),
+                                android.R.layout.simple_spinner_item,
+                                trains
+                            )
+                            spinnerTrain.adapter = adapterTrains
+
+                            var updatedTrain = ""
+                            spinnerTrain.onItemSelectedListener =
+                                object : AdapterView.OnItemSelectedListener {
+                                    override fun onItemSelected(
+                                        parent: AdapterView<*>?,
+                                        view: View?,
+                                        position: Int,
+                                        id: Long
+                                    ) {
+                                        updatedTrain = trains[position]
+                                    }
+
+                                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                                        TODO("Not yet implemented")
+                                    }
+                                }
+
+                            val editedTravel = Travel(
+                                departure = updatedDeparture,
+                                destination = updatedDestination,
+                                price = updatedPrice,
+                                train = updatedTrain
+                            )
+                            updateTravel(editedTravel)
+                            Toast.makeText(
+                                requireContext(),
+                                "Travel edited successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            findNavController().navigateUp()
+                        }
+
+                        btnDelete.setOnClickListener {
+                            showDeleteConfirmationDialog()
+                        }
                     }
                 }
             }
@@ -98,6 +155,7 @@ class EditTravelFragment : Fragment() {
                 // Handle failure
                 Log.d("TAG", "get failed with ", exception)
             }
+
     }
 
     private fun getIndex(spinnerTrain: AppCompatSpinner, toString: String): Int {
@@ -108,6 +166,34 @@ class EditTravelFragment : Fragment() {
         }
         return 0
     }
+
+    private fun updateTravel(travel: Travel) {
+        travel.id = updateId
+        travelCollectionRef.document(updateId).set(travel).addOnFailureListener {
+            Log.d("MainActivity", "Error updating budget", it)
+        }
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        val deleteConfirmationDialog = DeleteConfirmationFragment()
+        deleteConfirmationDialog.setDeleteConfirmationListener(this)
+        deleteConfirmationDialog.show(parentFragmentManager, "DeleteConfirmationDialog")
+    }
+
+    private fun deleteTravel(travelId: String) {
+        val documentReference = travelCollectionRef.document(travelId)
+
+        documentReference
+            .delete()
+            .addOnSuccessListener {
+                Log.d("TAG", "Document deleted successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.w("TAG", "Error deleting document", e)
+            }
+    }
+
+
 
     companion object {
         /**
@@ -127,5 +213,19 @@ class EditTravelFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        deleteTravel(updateId)
+        Toast.makeText(
+            requireContext(),
+            "Travel deleted successfully",
+            Toast.LENGTH_SHORT
+        ).show()
+        findNavController().navigateUp()
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        dialog.dismiss()
     }
 }

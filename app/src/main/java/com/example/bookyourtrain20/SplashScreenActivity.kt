@@ -27,7 +27,7 @@ class SplashScreenActivity : AppCompatActivity() {
         }
     }
 
-    fun checkLoginStatus() {
+    private fun checkLoginStatus() {
         val isLoggedIn = prefManager.isLoggedIn()
         if(isLoggedIn) {
             if(prefManager.getRole() == "admin") {

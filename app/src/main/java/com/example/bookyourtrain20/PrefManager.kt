@@ -62,10 +62,6 @@ class PrefManager private constructor(contect: Context) {
         return sharedPreferences.getString(KEY_USERNAME, "") ?: ""
     }
 
-    fun getPassword(): String {
-        return sharedPreferences.getString(KEY_PASSWORD, "") ?: ""
-    }
-
     fun getRole(): String {
         return sharedPreferences.getString(KEY_ROLE, "") ?: ""
     }

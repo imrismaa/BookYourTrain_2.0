@@ -16,29 +16,29 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [LogoutConfirmationFragment.newInstance] factory method to
+ * Use the [DeleteConfirmationFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class LogoutConfirmationFragment : DialogFragment() {
+class DeleteConfirmationFragment : DialogFragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    interface LogoutConfirmationListener {
+    interface DeleteConfirmationListener {
         fun onDialogPositiveClick(dialog: DialogFragment)
         fun onDialogNegativeClick(dialog: DialogFragment)
     }
 
-    private lateinit var listener: LogoutConfirmationListener
+    private lateinit var listener: DeleteConfirmationListener
 
-    fun setLogoutConfirmationListener(listener: LogoutConfirmationListener) {
+    fun setDeleteConfirmationListener(listener: DeleteConfirmationListener) {
         this.listener = listener
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
-            builder.setMessage("Are you sure you want to logout?")
+            builder.setMessage("Are you sure you want to delete this travel?")
                 .setPositiveButton("Yes") { _, _ ->
                     listener.onDialogPositiveClick(this)
                 }
@@ -62,7 +62,7 @@ class LogoutConfirmationFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_logout_confirmation, container, false)
+        return inflater.inflate(R.layout.fragment_delete_confirmation, container, false)
     }
 
     companion object {
@@ -72,12 +72,12 @@ class LogoutConfirmationFragment : DialogFragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment ListTravelAdminFragment.
+         * @return A new instance of fragment DeleteConfirmationFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            ListTravelAdminFragment().apply {
+            DeleteConfirmationFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

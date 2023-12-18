@@ -59,18 +59,6 @@ class EditTravelFragment : Fragment(), DeleteConfirmationFragment.DeleteConfirma
             val train = resources.getStringArray(R.array.train)
             val adapterTrain = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, train)
             spinnerTrain.adapter = adapterTrain
-
-            var selectedTrain = ""
-            spinnerTrain.onItemSelectedListener =
-                object: AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        selectedTrain = train[position]
-                    }
-
-                    override fun onNothingSelected(p0: AdapterView<*>?) {
-                        TODO("Not yet implemented")
-                    }
-                }
         }
 
         return view
@@ -89,46 +77,47 @@ class EditTravelFragment : Fragment(), DeleteConfirmationFragment.DeleteConfirma
                     val price = travelDocument?.get("price") as? Long
                     val train = travelDocument?.get("train") as? String
 
-                    Log.d("TAG", "Departure: $departure, Destination: $destination, Price: $price, Train: $train")
-
                     with(binding) {
                         editTxtDeparture.setText(departure)
                         editTxtDestination.setText(destination)
                         editTxtPrice.setText(price.toString())
+
                         spinnerTrain.setSelection(getIndex(spinnerTrain, train.toString()))
 
-                        // Assign the updateId here
                         updateId = travelId
 
+                        val trains = resources.getStringArray(R.array.train)
+                        val adapterTrains = ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_spinner_item,
+                            trains
+                        )
+                        spinnerTrain.adapter = adapterTrains
+                        val trainPosition = trains.indexOf(train)
+                        spinnerTrain.setSelection(trainPosition)
+
+                        var updatedTrain = ""
+                        spinnerTrain.onItemSelectedListener =
+                            object : AdapterView.OnItemSelectedListener {
+                                override fun onItemSelected(
+                                    parent: AdapterView<*>?,
+                                    view: View?,
+                                    position: Int,
+                                    id: Long
+                                ) {
+                                    updatedTrain = trains[position]
+                                }
+
+                                override fun onNothingSelected(p0: AdapterView<*>?) {
+                                    TODO("Not yet implemented")
+                                }
+                            }
                         btnUpdate.setOnClickListener {
                             val updatedDeparture = editTxtDeparture.text.toString()
                             val updatedDestination = editTxtDestination.text.toString()
                             val updatedPrice = editTxtPrice.text.toString().toInt()
 
-                            val trains = resources.getStringArray(R.array.train)
-                            val adapterTrains = ArrayAdapter(
-                                requireContext(),
-                                android.R.layout.simple_spinner_item,
-                                trains
-                            )
-                            spinnerTrain.adapter = adapterTrains
-
-                            var updatedTrain = ""
-                            spinnerTrain.onItemSelectedListener =
-                                object : AdapterView.OnItemSelectedListener {
-                                    override fun onItemSelected(
-                                        parent: AdapterView<*>?,
-                                        view: View?,
-                                        position: Int,
-                                        id: Long
-                                    ) {
-                                        updatedTrain = trains[position]
-                                    }
-
-                                    override fun onNothingSelected(p0: AdapterView<*>?) {
-                                        TODO("Not yet implemented")
-                                    }
-                                }
+                            Log.d("TAG", "Updated train: $updatedTrain")
 
                             val editedTravel = Travel(
                                 departure = updatedDeparture,
@@ -170,7 +159,7 @@ class EditTravelFragment : Fragment(), DeleteConfirmationFragment.DeleteConfirma
     private fun updateTravel(travel: Travel) {
         travel.id = updateId
         travelCollectionRef.document(updateId).set(travel).addOnFailureListener {
-            Log.d("MainActivity", "Error updating budget", it)
+            Log.d("TAG", "Error updating travel", it)
         }
     }
 

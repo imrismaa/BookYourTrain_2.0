@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -87,7 +88,7 @@ class BuyTicketFragment : Fragment() {
 
             txtTotalPrice.text = formatPrice(ticketPrice)
 
-            var classPrice = 0
+            var classPrice = ticketPrice
             var selectedClass = ""
             spinnerClass.onItemSelectedListener =
                 object: AdapterView.OnItemSelectedListener {
@@ -161,20 +162,28 @@ class BuyTicketFragment : Fragment() {
             }
 
             btnBook.setOnClickListener {
-                getUserDataFromFirestore(username) { userId ->
-                    val order = Order(
-                        userID = userId,
-                        travelID = ListTravelFragment.travelId,
-                        trainClass = selectedClass,
-                        date = editTxtDate.text.toString(),
-                        passengerName = editTxtPassengerName.text.toString(),
-                        additionalFacilities = additionalFacilities
-                    )
-                    bookTicket(order)
-                    val action = BuyTicketFragmentDirections.actionBuyTicketFragmentToHistoryFragment2()
-                    findNavController().navigate(action)
+                val passengerName = editTxtPassengerName.text.toString().trim()
+                val selectedDate = editTxtDate.text.toString().trim()
+
+                if (passengerName.isEmpty() || selectedDate.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                } else {
+                    getUserDataFromFirestore(username) { userId ->
+                        val order = Order(
+                            userID = userId,
+                            travelID = ListTravelFragment.travelId,
+                            trainClass = selectedClass,
+                            date = selectedDate,
+                            passengerName = passengerName,
+                            additionalFacilities = additionalFacilities
+                        )
+                        bookTicket(order)
+                        val action = BuyTicketFragmentDirections.actionBuyTicketFragmentToHistoryFragment2()
+                        findNavController().navigate(action)
+                    }
                 }
             }
+
         }
 
         return view
@@ -186,18 +195,23 @@ class BuyTicketFragment : Fragment() {
         val month = calendar.get(Calendar.MONTH)
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val datePickerDialog = DatePickerDialog( requireContext(), {
-                _, year, month, dayOfMonth ->
+        val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
             val selectedDate = Calendar.getInstance()
             selectedDate.set(year, month, dayOfMonth)
-            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val date = dateFormat.format(selectedDate.time)
-            editText.setText(date)
-        },
-            year, month, dayOfMonth
-        )
+
+            if (selectedDate.before(calendar)) {
+                Toast.makeText(requireContext(), "Please choose a date from today onwards", Toast.LENGTH_SHORT).show()
+            } else {
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val date = dateFormat.format(selectedDate.time)
+                editText.setText(date)
+            }
+        }, year, month, dayOfMonth)
+
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000 //
         datePickerDialog.show()
     }
+
 
     @SuppressLint("SetTextI18n")
     private fun getTravelDataFromFirestore(travelId: String, callback: (Int) -> Unit) {

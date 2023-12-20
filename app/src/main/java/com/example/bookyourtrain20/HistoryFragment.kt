@@ -6,6 +6,7 @@
     import android.view.LayoutInflater
     import android.view.View
     import android.view.ViewGroup
+    import android.widget.Toast
     import androidx.lifecycle.MutableLiveData
     import androidx.recyclerview.widget.LinearLayoutManager
     import com.example.bookyourtrain20.databinding.FragmentHistoryBinding
@@ -53,6 +54,14 @@
 
             observeOrder()
             getAllOrders()
+
+            with(binding) {
+                datePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                    val formattedDate = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year)
+                    checkTrip(formattedDate)
+                }
+            }
+
             return view
         }
 
@@ -112,6 +121,45 @@
                     Log.d("TAG", "get failed with ", exception)
                     callback("")
                 }
+        }
+
+        private fun checkTrip(selectedDate: String) {
+            val username = prefManager.getUsername()
+            getUserDataFromFirestore(username) { userId ->
+                orderCollectionRef
+                    .whereEqualTo("userID", userId)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        Log.d("TAG", "Checking trip for date: $selectedDate")
+
+                        var foundTrip = false
+
+                        for (document in documents) {
+                            val documentDate = document.getString("date")
+                            Log.d("TAG", "Document Date: $documentDate")
+
+                            if (documentDate == selectedDate) {
+                                foundTrip = true
+                                break
+                            }
+                        }
+
+                        val message = if (foundTrip) {
+                            "You have a trip on this day"
+                        } else {
+                            "You don't have a trip on this day"
+                        }
+
+                        Toast.makeText(
+                            requireContext(),
+                            message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.d("TAG", "get failed with ", exception)
+                    }
+            }
         }
 
 

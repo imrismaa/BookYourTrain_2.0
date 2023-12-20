@@ -123,6 +123,7 @@
             android:layout_marginHorizontal="18dp"
             android:layout_marginTop="8dp"
             android:hint="Enter ticket price"
+            android:inputType="number"
             android:textColor="@color/grey"
             android:textColorHint="@color/grey"
             android:fontFamily="@font/interregular"

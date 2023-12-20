@@ -78,30 +78,44 @@ class AddTravelFragment : Fragment() {
                 }
 
             btnAddTravel.setOnClickListener {
-                val travel = Travel(
-                    departure = editTxtDeparture.text.toString(),
-                    destination = editTxtDestination.text.toString(),
-                    price = editTxtPrice.text.toString().toInt(),
-                    train = selectedTrain
-                )
+                val departure = editTxtDeparture.text.toString().trim()
+                val destination = editTxtDestination.text.toString().trim()
+                val priceText = editTxtPrice.text.toString().trim()
 
-                val travelDB = TravelDB(
-                    departure = editTxtDeparture.text.toString(),
-                    destination = editTxtDestination.text.toString(),
-                    price = editTxtPrice.text.toString().toInt(),
-                    train = selectedTrain
-                )
-
-                if (isInternetAvailable(requireContext())) {
-                    addTravel(travel)
-                    Toast.makeText(requireContext(), "Travel added successfully", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp()
+                if (departure.isEmpty() || destination.isEmpty() || priceText.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 } else {
-                    addTravelToLocalDatabase(travelDB)
-                    Toast.makeText(requireContext(), "No internet connection. Travel added locally.", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp()
+                    val price = priceText.toIntOrNull()
+                    if (price == null) {
+                        Toast.makeText(requireContext(), "Invalid price format", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val travel = Travel(
+                            departure = departure,
+                            destination = destination,
+                            price = price,
+                            train = selectedTrain
+                        )
+
+                        val travelDB = TravelDB(
+                            departure = departure,
+                            destination = destination,
+                            price = price,
+                            train = selectedTrain
+                        )
+
+                        if (isInternetAvailable(requireContext())) {
+                            addTravel(travel)
+                            Toast.makeText(requireContext(), "Travel added successfully", Toast.LENGTH_SHORT).show()
+                            findNavController().navigateUp()
+                        } else {
+                            addTravelToLocalDatabase(travelDB)
+                            Toast.makeText(requireContext(), "No internet connection. Travel added locally.", Toast.LENGTH_SHORT).show()
+                            findNavController().navigateUp()
+                        }
+                    }
                 }
             }
+
         }
 
         return view

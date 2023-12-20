@@ -22,6 +22,8 @@ class OrderAdapter (private var listOrder: List<Order>) :
                     txtTrain.text = "${travel.train} ${order.trainClass}"
                 }
                 txtPassengerName.text = order.passengerName
+                txtAdditionalFacilities.text = order.additionalFacilities
+                txtDate.text = order.date
             }
         }
     }

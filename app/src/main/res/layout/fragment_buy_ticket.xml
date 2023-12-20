@@ -114,7 +114,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/label_price"
+            android:id="@+id/label_pname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/passenger_name"
@@ -126,7 +126,7 @@
             app:layout_constraintTop_toBottomOf="@id/card_travel"/>
 
         <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/edit_txt_price"
+            android:id="@+id/edit_txt_passenger_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="18dp"
@@ -135,7 +135,7 @@
             android:textColor="@color/grey"
             android:textColorHint="@color/grey"
             android:fontFamily="@font/interregular"
-            app:layout_constraintTop_toBottomOf="@id/label_price"
+            app:layout_constraintTop_toBottomOf="@id/label_pname"
             style="@style/EditTextBackground"/>
 
         <TextView
@@ -148,7 +148,7 @@
             android:fontFamily="@font/intersemibold"
             android:layout_marginHorizontal="18dp"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/edit_txt_price"/>
+            app:layout_constraintTop_toBottomOf="@id/edit_txt_passenger_name"/>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edit_txt_date"
@@ -156,12 +156,23 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="18dp"
             android:layout_marginTop="8dp"
-            android:hint="Enter passenger name"
+            android:hint="Choose date"
             android:textColor="@color/grey"
             android:textColorHint="@color/grey"
             android:fontFamily="@font/interregular"
             app:layout_constraintTop_toBottomOf="@id/label_date"
             style="@style/EditTextBackground"/>
+
+        <ImageButton
+            android:id="@+id/btn_date_picker"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/baseline_date_range_24"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="24dp"
+            android:contentDescription="@string/show"
+            app:layout_constraintTop_toBottomOf="@id/label_date"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <TextView
             android:id="@+id/label_class"

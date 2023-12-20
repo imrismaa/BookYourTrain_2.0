@@ -1,6 +1,7 @@
 package com.example.bookyourtrain20
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,9 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.EditText
+import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentBuyTicketBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match
@@ -30,6 +35,9 @@ class BuyTicketFragment : Fragment() {
     private var param2: String? = null
 
     private lateinit var binding: FragmentBuyTicketBinding
+    private lateinit var prefManager: PrefManager
+    private val firestore = FirebaseFirestore.getInstance()
+    private val orderCollectionRef = firestore.collection("orders")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +47,7 @@ class BuyTicketFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,33 +56,141 @@ class BuyTicketFragment : Fragment() {
         binding = FragmentBuyTicketBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        if(ListTravelFragment.travelId.isNotEmpty()) {
-            getTravelDataFromFirestore(ListTravelFragment.travelId)
-        }
+        prefManager = PrefManager.getInstance(requireContext())
+        val username = prefManager.getUsername()
 
         with(binding) {
             val classes = resources.getStringArray(R.array.classes)
             val adapterClass = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, classes)
             spinnerClass.adapter = adapterClass
 
+            var ticketPrice = 0
+            if (ListTravelFragment.travelId.isNotEmpty()) {
+                getTravelDataFromFirestore(ListTravelFragment.travelId) { receivedPrice ->
+                    ticketPrice = receivedPrice
+                }
+            }
+
+            btnDatePicker.setOnClickListener {
+                showDatePickerDialog(editTxtDate)
+            }
+
+            txtTotalPrice.text = formatPrice(ticketPrice)
+
+            var classPrice = 0
             var selectedClass = ""
             spinnerClass.onItemSelectedListener =
                 object: AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         selectedClass = classes[position]
+                        when (selectedClass) {
+                            "Economy" -> {
+                                classPrice = ticketPrice
+                            }
+                            "Business" -> {
+                                classPrice = ticketPrice + 30000
+                            }
+                            "Executive" -> {
+                                classPrice = ticketPrice + 100000
+                            }
+                            "Luxury" -> {
+                                classPrice = ticketPrice + 200000
+                            }
+                        }
+                        txtTotalPrice.text = formatPrice(classPrice)
                     }
 
                     override fun onNothingSelected(p0: AdapterView<*>?) {
                         TODO("Not yet implemented")
                     }
                 }
+
+            var currentPrice: Int
+            var additionalFacilities = ""
+            btnPaketSatu.setOnClickListener {
+                currentPrice = classPrice + 20000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_satu)
+                additionalFacilities = getString(R.string.paket_satu)
+            }
+            btnPaketDua.setOnClickListener {
+                currentPrice = classPrice + 12000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_dua)
+                additionalFacilities = getString(R.string.paket_dua)
+            }
+            btnPaketTiga.setOnClickListener {
+                currentPrice = classPrice + 10000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_tiga)
+                additionalFacilities = getString(R.string.paket_tiga)
+            }
+            btnPaketEmpat.setOnClickListener {
+                currentPrice = classPrice + 25000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_empat)
+                additionalFacilities = getString(R.string.paket_empat)
+            }
+            btnPaketLima.setOnClickListener {
+                currentPrice = classPrice + 15000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_lima)
+                additionalFacilities = getString(R.string.paket_lima)
+            }
+            btnPaketEnam.setOnClickListener {
+                currentPrice = classPrice + 45000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_enam)
+                additionalFacilities = getString(R.string.paket_enam)
+            }
+            btnPaketTujuh.setOnClickListener {
+                currentPrice = classPrice + 50000
+                txtTotalPrice.text = formatPrice(currentPrice)
+                txtPaket.text = getString(R.string.paket_tujuh)
+                additionalFacilities = getString(R.string.paket_tujuh)
+            }
+
+            btnBook.setOnClickListener {
+                getUserDataFromFirestore(username) { userId ->
+                    val order = Order(
+                        userID = userId,
+                        travelID = ListTravelFragment.travelId,
+                        trainClass = selectedClass,
+                        date = editTxtDate.text.toString(),
+                        passengerName = editTxtPassengerName.text.toString(),
+                        additionalFacilities = additionalFacilities
+                    )
+                    bookTicket(order)
+                    val action = BuyTicketFragmentDirections.actionBuyTicketFragmentToHistoryFragment2()
+                    findNavController().navigate(action)
+                }
+            }
         }
 
         return view
     }
 
+    private fun showDatePickerDialog(editText: EditText) {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog( requireContext(), {
+                _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance()
+            selectedDate.set(year, month, dayOfMonth)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val date = dateFormat.format(selectedDate.time)
+            editText.setText(date)
+        },
+            year, month, dayOfMonth
+        )
+        datePickerDialog.show()
+    }
+
     @SuppressLint("SetTextI18n")
-    private fun getTravelDataFromFirestore(travelId: String) {
+    private fun getTravelDataFromFirestore(travelId: String, callback: (Int) -> Unit) {
         val travelCollectionRef = FirebaseFirestore.getInstance().collection("travel")
 
         travelCollectionRef
@@ -84,22 +201,60 @@ class BuyTicketFragment : Fragment() {
                     val travelDocument = documents.documents[0]
                     val departure = travelDocument.getString("departure")
                     val destination = travelDocument.getString("destination")
-                    val price = travelDocument.getLong("price")
+                    val price = travelDocument.getLong("price")?.toInt() ?: 0
                     val train = travelDocument.getString("train")
+                    val formattedPrice = formatPrice(price)
+
                     with(binding){
-                        val formattedPrice = formatPrice(price.toString().toInt())
                         txtDeparture.text = "Departure \n$departure"
                         txtDestination.text = "Destination \n$destination"
                         txtPrice.text = formattedPrice
                         txtTrain.text = train
+
+                        txtTotalPrice.text = formattedPrice
                     }
+                    callback(price)
                 }
             }
             .addOnFailureListener { exception ->
-                // Handle failure
                 Log.d("TAG", "get failed with ", exception)
+                callback(0)
             }
     }
+
+
+    private fun getUserDataFromFirestore(username: String, callback: (String) -> Unit) {
+        val userCollectionRef = FirebaseFirestore.getInstance().collection("users")
+
+        userCollectionRef
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val userDocument = documents.documents[0]
+                    val userId = userDocument.getString("id").toString()
+                    callback(userId)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("TAG", "get failed with ", exception)
+                callback("")
+            }
+    }
+
+    private fun bookTicket(order: Order) {
+        orderCollectionRef.add(order).addOnSuccessListener {
+                documentReference ->
+            val createdTravelId = documentReference.id
+            order.id = createdTravelId
+            documentReference.set(order).addOnFailureListener {
+                Log.d("MainActivity", "Error updating travel id : ", it)
+            }
+        }.addOnFailureListener {
+            Log.d("MainActivity", "Error updating travel id : ", it)
+        }
+    }
+
 
     companion object {
         /**

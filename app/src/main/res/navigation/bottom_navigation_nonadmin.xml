@@ -28,5 +28,9 @@
         android:id="@+id/buyTicketFragment"
         android:name="com.example.bookyourtrain20.BuyTicketFragment"
         android:label="fragment_buy_ticket"
-        tools:layout="@layout/fragment_buy_ticket" />
+        tools:layout="@layout/fragment_buy_ticket" >
+        <action
+            android:id="@+id/action_buyTicketFragment_to_historyFragment2"
+            app:destination="@id/historyFragment2" />
+    </fragment>
 </navigation>

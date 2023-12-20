@@ -87,15 +87,15 @@ class RegisterFragment : Fragment() {
                 val currentInputType = editTxtPassword.inputType
 
                 val newInputType = if (!confirmPasswordVisible) {
-                    btnShowPw.setImageResource(R.drawable.baseline_visibility_off_24)
+                    btnShowPw2.setImageResource(R.drawable.baseline_visibility_off_24)
                     currentInputType and InputType.TYPE_TEXT_VARIATION_PASSWORD.inv()
                 } else {
-                    btnShowPw.setImageResource(R.drawable.baseline_visibility_24)
+                    btnShowPw2.setImageResource(R.drawable.baseline_visibility_24)
                     currentInputType or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 }
 
-                editTxtPassword.inputType = newInputType
-                editTxtPassword.setSelection(editTxtPassword.text?.length?: 0)
+                editTxtConfirmPassword.inputType = newInputType
+                editTxtConfirmPassword.setSelection(editTxtPassword.text?.length?: 0)
 
                 confirmPasswordVisible = !confirmPasswordVisible
             }

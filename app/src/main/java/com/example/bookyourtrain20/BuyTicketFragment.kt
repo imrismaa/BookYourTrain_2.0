@@ -1,7 +1,13 @@
 package com.example.bookyourtrain20
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,8 +17,12 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentBuyTicketBinding
+import com.example.bookyourtrain20.databinding.FragmentHistoryBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -243,18 +253,56 @@ class BuyTicketFragment : Fragment() {
     }
 
     private fun bookTicket(order: Order) {
-        orderCollectionRef.add(order).addOnSuccessListener {
-                documentReference ->
+        orderCollectionRef.add(order).addOnSuccessListener { documentReference ->
             val createdTravelId = documentReference.id
             order.id = createdTravelId
             documentReference.set(order).addOnFailureListener {
                 Log.d("MainActivity", "Error updating travel id : ", it)
             }
+
+            showNotification("Yay! Enjoy your trip <3", "Your ticket has been booked successfully. Don't forget to check your ticket in Your Orders menu!")
         }.addOnFailureListener {
             Log.d("MainActivity", "Error updating travel id : ", it)
         }
     }
 
+    private fun showNotification(title: String, message: String) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channelId = "my_channel_id"
+            val channelName = "My Channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, channelName, importance)
+            val notificationManager = requireContext().getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+        val intent = Intent(requireContext(), FragmentHistoryBinding::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(
+            requireContext(),
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(requireContext(), "my_channel_id")
+            .setSmallIcon(R.drawable.baseline_notifications_24)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+
+        with(NotificationManagerCompat.from(requireContext())) {
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling ActivityCompat#requestPermissions
+                return
+            }
+            notify(1, notificationBuilder.build())
+        }
+    }
 
     companion object {
         /**
@@ -277,7 +325,6 @@ class BuyTicketFragment : Fragment() {
     }
 
     private fun formatPrice(price: Int): String {
-        // Use NumberFormat to format the price in IDR
         val localeID = Locale("id", "ID")
         val numberFormat = NumberFormat.getCurrencyInstance(localeID)
         return numberFormat.format(price.toLong())

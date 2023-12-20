@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.example.bookyourtrain20.databinding.FragmentProfileAdminBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -57,9 +58,11 @@ class ProfileAdminFragment : Fragment(), LogoutConfirmationFragment.LogoutConfir
             logout.setOnClickListener{
                 showLogoutConfirmationDialog()
             }
-
+            addAdmin.setOnClickListener {
+                val action = ProfileAdminFragmentDirections.actionProfileAdminFragment2ToAddAdminFragment()
+                findNavController().navigate(action)
+            }
         }
-
         return view
     }
 

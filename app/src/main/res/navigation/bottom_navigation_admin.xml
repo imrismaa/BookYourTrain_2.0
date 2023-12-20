@@ -21,7 +21,11 @@
         android:id="@+id/profileAdminFragment2"
         android:name="com.example.bookyourtrain20.ProfileAdminFragment"
         android:label="fragment_profile_admin"
-        tools:layout="@layout/fragment_profile_admin" />
+        tools:layout="@layout/fragment_profile_admin" >
+        <action
+            android:id="@+id/action_profileAdminFragment2_to_addAdminFragment"
+            app:destination="@id/addAdminFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addTravelFragment"
         android:name="com.example.bookyourtrain20.AddTravelFragment"
@@ -32,4 +36,9 @@
         android:name="com.example.bookyourtrain20.EditTravelFragment"
         android:label="fragment_edit_travel"
         tools:layout="@layout/fragment_edit_travel" />
+    <fragment
+        android:id="@+id/addAdminFragment"
+        android:name="com.example.bookyourtrain20.AddAdminFragment"
+        android:label="fragment_add_admin"
+        tools:layout="@layout/fragment_add_admin" />
 </navigation>
